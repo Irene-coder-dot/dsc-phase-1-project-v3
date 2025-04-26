@@ -27,7 +27,6 @@ An initial data exploration phase will focus on evaluating data quality, detecti
 #### 1. Key Fields
 * Aircraft make and model
 * Date and location of incidents
-* Types of operation 
 * Number of fatalities and injuries
 * Accident synopsis and summary
 
@@ -40,265 +39,354 @@ An initial data exploration phase will focus on evaluating data quality, detecti
 * Handle missing and inconsistent values
 
 
-### Key Points
+## Load the Dataset
 
-* **Your analysis should yield three concrete business recommendations.** The key idea behind dealing with missing values, aggregating and visualizaing data is to help your organization make data driven decisions. You will relate your findings to business intelligence by making recommendations for how the business should move forward with the new aviation opportunity.
+Before we load our dataset we import the below libraries. the Import warnings will tell python to supress all warnings messages.
 
-* **Communicating about your work well is extremely important.** Your ability to provide value to an organization - or to land a job there - is directly reliant on your ability to communicate with them about what you have done and why it is valuable. Create a storyline your audience (the head of the aviation division) can follow by walking them through the steps of your process, highlighting the most important points and skipping over the rest.
+# Importing necessary libraries 
+import pandas as pd 
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings('ignore')
 
-* **Use plenty of visualizations.** Visualizations are invaluable for exploring your data and making your findings accessible to a non-technical audience. Spotlight visuals in your presentation, but only ones that relate directly to your recommendations. Simple visuals are usually best (e.g. bar charts and line graphs), and don't forget to format them well (e.g. labels, titles).
+Next step is to load the dataset in a pandas dataframe using read_csv method and display the first few rows.
 
-## Deliverables
+# Loading the dataset
+df= pd.read_csv('data/Aviation_Data.csv')
 
-There are three deliverables for this project:
+# Shows the first few rows 
+df.head()
 
-* A **non-technical presentation**
-* A **Jupyter Notebook**
-* A **GitHub repository**
-* An **Interactive Dashboard**
+The Aviation accident dataset contains historical records of aircraft incidents compiled from NTSB reports. This dataset will serve as the basis for identifying aircraft models associated with lower safety risk.
 
-### Non-Technical Presentation
+## Dataset Overview
 
-The non-technical presentation is a slide deck presenting your analysis to business stakeholders.
+# Dataset shape and summary
+df.shape
 
-* ***Non-technical*** does not mean that you should avoid mentioning the technologies or techniques that you used, it means that you should explain any mentions of these technologies and avoid assuming that your audience is already familiar with them.
-* ***Business stakeholders*** means that the audience for your presentation is the business, not the class or teacher. Do not assume that they are already familiar with the specific business problem.
+The dataset has 90348 rows and 31 columns.
 
-The presentation describes the project ***goals, data, methods, and results***. It must include at least ***three visualizations*** which correspond to ***three business recommendations***.
+# Dataset summary 
+df.info()
 
-We recommend that you follow this structure, although the slide titles should be specific to your project:
+The .info() method provides a concise summary of the DataFrame. In this aviation dataset, there are 90,348 rows and 31 columns. Among these, 5 columns are of float data type, while the remaining 26 columns are of object data type, typically representing strings or mixed data.
 
-1. Beginning
-    * Overview
-    * Business Understanding
-2. Middle
-    * Data Understanding
-    * Data Analysis
-3. End
-    * Recommendations
-    * Next Steps
-    * Thank You
-       * This slide should include a prompt for questions as well as your contact information (name and LinkedIn profile)
+# Summary statistics for numerical column
 
-You will give a live presentation of your slides and submit them in PDF format on Canvas. The slides should also be present in the GitHub repository you submit with a file name of `presentation.pdf`.
+df.describe()
 
-The graded elements of the presentation are:
+The summary statistics offer valuable insights into key variables such as the number of engines, fatal injuries, serious injuries, minor injuries, and the total number of uninjured individuals. On average, each incident involved approximately 0.65 fatal injuries, 0.36 minor injuries, and 0.28 serious injuries, while about 5.33 individuals remained uninjured per case. These averages indicate that most incidents did not result in any injuries, as the mean values for fatalities and injuries are all below one. This suggests that while some incidents were severe, the majority involved no injuries at all. However, the relatively high average of uninjured individuals points to a consistent presence of survivors or unaffected individuals in each incident.
 
-* Presentation Content
-* Slide Style
-* Presentation Delivery and Answers to Questions
+# finding missing values 
 
-See the [Grading](#grading) section for further explanation of these elements.
+df.isnull().sum()
 
-For further reading on creating professional presentations, check out:
+The .isnull().sum() method helps detect missing data by returning the count of null (or missing) values in each column of the aviation dataset. Event Id,Event date and Accident number have no missing values. Location is missing 1511 entries ,Latitude and longitude have a high number of missing values. This indicates that geographical data is largely incomplete. Injury related fields like Total.Fatal.Injuries, Total.Serious.Injuries, and Total.Minor.Injuries have thousands of missing entries—this may reflect cases where injury details were not recorded or not applicable. Columns such as Schedule, Air.carrier, and FAR.Description are missing in over 70,000 records, which might significantly impact analysis involving those fields.
 
-* [Presentation Content](https://github.com/learn-co-curriculum/dsc-project-presentation-content)
-* [Slide Style](https://github.com/learn-co-curriculum/dsc-project-slide-design)
+# Check for unique values in key categorical columns
 
-### Jupyter Notebook
+df['Make'].value_counts().head(10)
+df['Make']
 
-The Jupyter Notebook is a notebook that uses Python and Markdown to present your analysis to a data science audience.
+# Check distribution of accident data
 
-* ***Python and Markdown*** means that you need to construct an integrated `.ipynb` file with Markdown (headings, paragraphs, links, lists, etc.) and Python code to create a well-organized, skim-able document.
-  * The notebook kernel should be restarted and all cells run before submission, to ensure that all code is runnable in order.
-  * Markdown should be used to frame the project with a clear introduction and conclusion, as well as introducing each of the required elements.
-* ***Data science audience*** means that you can assume basic data science proficiency in the person reading your notebook. This differs from the non-technical presentation.
+#Remove leading/trailing spaces from column names
+df.columns = df.columns.str.strip()
+#Convert the 'Event.Date' column to datetime format
+df['Event.Date'] = pd.to_datetime(df['Event.Date'], errors='coerce')
 
-Along with the presentation, the notebook also describes the project ***goals, data, methods, and results***.
+# Check the date range
 
-You will submit the notebook in PDF format on Canvas as well as in `.ipynb` format in your GitHub repository.
+print("Date range of accident data:")
+print(f"From {df['Event.Date'].min().date()} to {df['Event.Date'].max().date()}")
 
-The graded elements for the Jupyter Notebook are:
+str.strip() removes any hidden spaces in column names (common issue). pd.to_datetime() converts date strings into actual datetime objects.
+.min() and .max() find the earliest and latest dates.
+.dt.year.value_counts() helps you see how many accidents occurred each year.
 
-* Business Understanding
-* Data Understanding
-* Data Preparation
-* Data Analysis
-* Code Quality
+ # Data Cleaning
+ Dropping columns with missing values like location which has 1511 missing values . The location column will not be used in this analysis.
 
-See the [Grading](#grading) section for further explanation of these elements.
+ df.drop(columns=['Location'], inplace=True)
 
-### GitHub Repository
+  Next we will impute the injury related fields i.e the Total.Fatal.Injuries, Total.Serious.Injuries, and Total.Minor.Injuries.
+  # List of injury-related fields
+injury_cols = ['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']
 
-The GitHub repository is the cloud-hosted directory containing all of your project files as well as their version history.
+# Fill missing injury data with 0 (indicating no injuries or not applicable)
+df[injury_cols] = df[injury_cols].fillna(0)
 
-This repository link will be the project link that you include on your resume, LinkedIn, etc. for prospective employers to view your work. Note that we typically recommend that 3 links are highlighted (out of 5 projects) so don't stress too much about getting this one to be perfect! There will also be time after graduation for cosmetic touch-ups.
+# Optional: Convert injury columns to integers (if they were float initially)
+df[injury_cols] = df[injury_cols].astype(int)
 
-A professional GitHub repository has:
+Top 10 Aircrafts Makes by Accident Frequency
+# Clean and standardize the Make column to remove extra white spaces or different capitalization
+df['Make']= df['Make'].str.upper().str.strip()
 
-1. `README.md`
-    * A file called `README.md` at the root of the repository directory, written in Markdown; this is what is rendered when someone visits the link to your repository in the browser
-    * This file contains these sections:
-       * Overview
-       * Business Understanding
-          * Include stakeholder and key business questions
-       * Data Understanding and Analysis
-          * Source of data
-          * Description of data
-          * Three visualizations (the same visualizations presented in the slides and notebook)
-       * Conclusion
-          * Summary of conclusions including three relevant findings
-2. Commit history
-   * Progression of updates throughout the project time period, not just immediately before the deadline
-   * Clear commit messages
-   * Commits from all team members (if a group project)
-3. Organization
-   * Clear folder structure
-   * Clear names of files and folders
-   * Easily-located notebook and presentation linked in the README
-4. Notebook(s)
-   * Clearly-indicated final notebook that runs without errors
-   * Exploratory/working notebooks (can contain errors, redundant code, etc.) from all team members (if a group project)
-5. `.gitignore`
-   * A file called `.gitignore` at the root of the repository directory instructs Git to ignore large, unnecessary, or private files
-     * Because it starts with a `.`, you will need to type `ls -a` in the terminal in order to see that it is there
-   * GitHub maintains a [Python .gitignore](https://github.com/github/gitignore/blob/master/Python.gitignore) that may be a useful starting point for your version of this file
-   * To tell Git to ignore more files, just add a new line to `.gitignore` for each new file name
-     * Consider adding `.DS_Store` if you are using a Mac computer, as well as project-specific file names
-     * If you are running into an error message because you forgot to add something to `.gitignore` and it is too large to be pushed to GitHub [this blog post](https://medium.com/analytics-vidhya/tutorial-removing-large-files-from-git-78dbf4cf83a?sk=c3763d466c7f2528008c3777192dfb95)(friend link) should help you address this
+# Top 10 Aircraft makes by frequency
 
-You wil submit a link to the GitHub repository on Canvas.
+top_makes = df['Make'].value_counts().head(10)
 
-See the [Grading](#grading) section for further explanation of how the GitHub repository will be graded.
+#Plotting
+plt.figure(figsize= (10,8))
+sns.barplot(x= top_makes.values, y= top_makes.index, color="blue")
+plt.title("Top 10 Aircraft Makes involved in accidents")
+plt.xlabel("Number of Incidences")
+plt.ylabel("Aircraft Make")
+plt.tight_layout()
+plt.show();
 
-For further reading on creating professional notebooks and `README`s, check out [this reading](https://github.com/learn-co-curriculum/dsc-repo-readability-v2-2).
+This chart displays the top 10 Aircraft manufactures most frequently involved in reported incidents. Cessna has the most leading incidences of over 20000 incidences while Piper, Bell, Boeing, Grumman and  Mooney manufactures have less than 5000 reported incidences. The Make column was standardized by converting all values to uppercase and removing leading/trailing whitespace. This ensures that different variations of the same manufacturer (like "Cessna", "CESSNA", or "CESSNA ") are treated consistently, avoiding duplicate entries in the analysis. 
 
-### Interactive Dashboard
+Cessna consistently emerges as the aircraft make with the highest reported incidents.
 
-The interactive dashboard is a collection of views that allows the viewer to change the views to understand different features in the data. This dashboard will be linked within your GitHub repository README.md file so that users can explore your analysis. Make sure you follow visual best practices that you have learned in this course. Below is an example of what you could produce for this assignment.
-![tableau dashboard for aviation accidents](https://raw.githubusercontent.com/learn-co-curriculum/dsc-phase-1-project-v3/master/example_dashboard.png)
+## Most Frequently Involved Aircraft Models
 
-## Grading
+#Top 10 Models involved in Accidents 
 
-***To pass this project, you must pass each project rubric objective.*** The project rubric objectives for Phase 1 are:
+top_models = df['Model'].value_counts().head(10)
 
-1. Data Communication
-2. Authoring Jupyter Notebooks
-3. Data Manipulation and Analysis with `pandas`
-4. Interactive Data Visualization
+#Plot graph for the top_models
+plt.figure(figsize=(10,8))
+sns.barplot(x= top_models.values, y=top_models.index, color="green")
+plt.title("Top 10 Aircraft Models Involved in Accidents")
+plt.xlabel("Number of incidents")
+plt.ylabel("Aircraft Models")
+plt.tight_layout()
+plt.show();
 
-### Data Communication
+This chart highlights the aircraft models with the highest number of recorded incidents. The Aircraft Model 152 leads with over 2,000 incidents, while the Model 150M has a significantly lower incident count of just over 500.
 
-Communication is a key "soft skill". In [this survey](https://www.payscale.com/data-packages/job-skills), 46% of hiring managers said that recent college grads were missing this skill.
+This analysis gives us a clear picture of which specific aircraft models are most frequently involved in accidents. By identifying these models, we can focus on understanding the factors contributing to their high incident rates. For example, the higher number of incidents for Model 152 might be attributed to its widespread use or specific operational contexts, whereas Model 150M may require further analysis to determine why it has relatively fewer incidents.
 
-Because "communication" can encompass such a wide range of contexts and skills, we will specifically focus our Phase 1 objective on Data Communication. We define Data Communication as:
+### Analysis of Accident Severity 
 
-> Communicating basic data analysis results to diverse audiences via writing and live presentation
+With the most frequent aircraft makes and the top aircraft models involved in accidents identified, the next step is to analyze accident severity and correlate it with specific makes and models.
 
-To further define some of these terms:
+### 1. Assess Accident Severity:
+You can calculate severity metrics like the number of fatalities, serious injuries, and minor injuries.
 
-* By "basic data analysis" we mean that you are filtering, sorting, grouping, and/or aggregating the data in order to answer business questions. This project does not involve inferential statistics or machine learning, although descriptive statistics such as measures of central tendency are encouraged.
-* By "results" we mean your ***three visualizations and recommendations***.
-* By "diverse audiences" we mean that your presentation and notebook are appropriately addressing a business and data science audience, respectively.
+This will allow you to evaluate whether more frequent accidents correlate with more severe outcomes.
 
-Below are the definitions of each rubric level for this objective. This information is also summarized in the rubric, which is attached to the project submission assignment.
+Severity metrics could include:
 
-#### Exceeds Objective
-Creates and describes appropriate visualizations for given business questions, where each visualization fulfills all elements of the checklist
+* Fatality Rate: Number of fatalities / Total number of accidents.
 
-> This "checklist" refers to the Data Visualization checklist within the larger Phase 1 Project Checklist
+* Injury Rate: Total injuries (fatal + serious + minor) / Total number of accidents.
 
-#### Meets Objective (Passing Bar)
-Creates and describes appropriate visualizations for given business questions
+### 2. Group by Aircraft Make and Model:
 
-> This objective can be met even if all checklist elements are not fulfilled. For example, if there is some illegible text in one of your visualizations, you can still meet this objective
+You can group by both aircraft make and model to calculate these severity metrics.
+#Severity metrics by Aircraft Make
+# Normalize the 'Make' column to ensure consistency (e.g., convert all names to uppercase)
+df['Make'] = df['Make'].str.upper()
 
-#### Approaching Objective
-Creates visualizations that are not related to the business questions, or uses an inappropriate type of visualization
+# Group by 'make' and sum up the injury-related fields
+severity_by_make = df.groupby('Make')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
 
-> Even if you create very compelling visualizations, you cannot pass this objective if the visualizations are not related to the business questions
+# Calculate fatality rate and injury rate
+accidents_by_make = df['Make'].value_counts()
+severity_by_make['fatality_rate'] = severity_by_make['Total.Fatal.Injuries'] / accidents_by_make
+severity_by_make['injury_rate'] = (severity_by_make['Total.Fatal.Injuries'] + severity_by_make['Total.Serious.Injuries'] + severity_by_make['Total.Minor.Injuries']) / accidents_by_make
 
-> An example of an inappropriate type of visualization would be using a line graph to show the correlation between two independent variables, when a scatter plot would be more appropriate
+# Sort by fatality rate or injury rate
+severity_by_make_sorted = severity_by_make.sort_values(by='fatality_rate', ascending=False)
 
-#### Does Not Meet Objective
-Does not submit the required number of visualizations
+# Display the top 10 aircraft makes by fatality rate
+print(severity_by_make_sorted.head(10))
 
-### Authoring Jupyter Notebooks
+### Key insights and Observations
 
-According to [Kaggle's 2020 State of Data Science and Machine Learning Survey](https://www.kaggle.com/kaggle-survey-2020), 74.1% of data scientists use a Jupyter development environment, which is more than twice the percentage of the next-most-popular IDE, Visual Studio Code. Jupyter Notebooks allow for reproducible, skim-able code documents for a data science audience. Comfort and skill with authoring Jupyter Notebooks will prepare you for job interviews, take-home challenges, and on-the-job tasks as a data scientist.
+**Aircraft Makes with the Highest Fatality Rate:**
 
-The key feature that distinguishes *authoring Jupyter Notebooks* from simply *writing Python code* is the fact that Markdown cells are integrated into the notebook along with the Python cells in a notebook. You have seen examples of this throughout the curriculum, but now it's time for you to practice this yourself!
+* TUPOLEV has the highest fatality rate of 127.25 with 509 fatal injuries and no reported minor injuries. This suggests that accidents involving Tupolev aircraft are often fatal and do not typically involve non-fatal injuries. 
 
-Below are the definitions of each rubric level for this objective. This information is also summarized in the rubric, which is attached to the project submission assignment.
+**Other Makes with Relatively High Fatality Rates are as follows:**
 
-#### Exceeds Objective
-Uses Markdown and code comments to create a well-organized, skim-able document that follows all best practices
+* VIKING AIR LIMITED has a fatality rate of 23 with 23 fatal injuries. Despite this relatively high rate, it reports no serious or minor injuries, indicating that accidents involving this make tend to result in fatalities but fewer other types of injuries.
 
-> Refer to the [repository readability reading](https://github.com/learn-co-curriculum/dsc-repo-readability-v2-2) for more tips on best practices
+* AVIOCAR CASA and MIL, each with 18 and 13 fatal injuries respectively, have fatality rates of 18 and 13, showing that accidents involving these aircraft tend to be fatal.
 
-#### Meets Objective (Passing Bar)
-Uses some Markdown to create an organized notebook, with an introduction at the top and a conclusion at the bottom
+Makes like EMBRAER AIRCRAFT, AIRVAN, M7AERO, and JETSTREAM have lower fatality rates, suggesting that accidents with these aircraft are less likely to result in fatalities and may involve fewer injuries overall. ANTONOV has a small number of minor injuries, indicating that its accidents might have a more varied severity, though fatalities remain high.
 
-#### Approaching Objective
-Uses Markdown cells to organize, but either uses only headers and does not provide any explanations or justifications, or uses only plaintext without any headers to segment out sections of the notebook
+**Conclusion:**
 
-> Headers in Markdown are delineated with one or more `#`s at the start of the line. You should have a mixture of headers and plaintext (text where the line does not start with `#`)
+This dataset indicates that some aircraft makes, especially TUPOLEV, tend to be involved in accidents with very high fatality rates, while others have comparatively lower fatality rates but still report fatalities. The presence of minor injuries in a few cases (like ANTONOV and M7AERO) shows that not all accidents are as severe as those involving TUPOLEV.
 
-#### Does Not Meet Objective
-Does not submit a notebook, or does not use Markdown cells at all to organize the notebook
+# Severity Metrics by Aircraft Model 
 
-### Data Manipulation and Analysis with `pandas`
+# Group by 'model' and sum up the injury-related fields
+severity_by_model = df.groupby('Model')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
 
-`pandas` is a very popular data manipulation library, with over 2 million downloads on Anaconda (`conda install pandas`) and over 19 million downloads on PyPI (`pip install pandas`) at the time of this writing. In our own internal data, we see that the overwhelming majority of Flatiron School DS grads use `pandas` on the job in some capacity.
+# Calculate fatality rate and injury rate by model
+accidents_by_model = df['Model'].value_counts()
+severity_by_model['fatality_rate'] = severity_by_model['Total.Fatal.Injuries'] / accidents_by_model
+severity_by_model['injury_rate'] = (severity_by_model['Total.Fatal.Injuries'] + severity_by_model['Total.Serious.Injuries'] + severity_by_model['Total.Minor.Injuries']) / accidents_by_model
 
-Unlike in base Python, where the Zen of Python says "There should be one-- and preferably only one --obvious way to do it", there is often more than one valid way to do something in `pandas`. However there are still more efficient and less efficient ways to use it. Specifically, the best `pandas` code is *performant* and *idiomatic*.
+# Sort by fatality rate or injury rate
+severity_by_model_sorted = severity_by_model.sort_values(by='fatality_rate', ascending=False)
 
-Performant `pandas` code utilizes methods and broadcasting rather than user-defined functions or `for` loops. For example, if you need to strip whitespace from a column containing string data, the best approach would be to use the [`pandas.Series.str.strip` method](https://pandas.pydata.org/docs/reference/api/pandas.Series.str.strip.html) rather than writing your own function or writing a loop. Or if you want to multiply everything in a column by 100, the best approach would be to use broadcasting (e.g. `df["column_name"] * 100`) instead of a function or loop. You can still write your own functions if needed, but only after checking that there isn't a built-in way to do it.
+# Display the top 10 aircraft models by fatality rate
+print(severity_by_model_sorted.head(10))
 
-Idiomatic `pandas` code has variable names that are meaningful words or abbreviations in English, that are related to the purpose of the variables. You can still use `df` as the name of your DataFrame if there is only one main DataFrame you are working with, but as soon as you are merging multiple DataFrames or taking a subset of a DataFrame, you should use meaningful names. For example, `df2` would not be an idiomatic name, but `movies_and_reviews` could be.
+### Key Insights and Observations 
 
-We also recommend that you rename all DataFrame columns so that their meanings are more understandable, although it is fine to have acronyms. For example, `"col1"` would not be an idiomatic name, but `"USD"` could be.
+**Aircraft Models with the Highest Fatality Rates:**
 
-Below are the definitions of each rubric level for this objective. This information is also summarized in the rubric, which is attached to the project submission assignment.
+* 747-168 and TU-154 both have the highest fatality rates of 349.0, with 349 fatal injuries. These models have no reported minor injuries, indicating that accidents involving these models tend to result in fatalities without lesser injuries.
 
-#### Exceeds Objective
-Uses `pandas` to prepare data and answer business questions in an idiomatic, performant way
+* 777 - 206 also has a high fatality rate of 178.0, with 534 fatal injuries, but fewer fatalities compared to the 747-168 and TU-154 (despite having the highest number of fatal injuries). This suggests that accidents with the 777 - 206 are still highly fatal but might involve more cases where the fatalities are more frequent but not as severe in the average incident.
 
-#### Meets Objective (Passing Bar)
-Successfully uses `pandas` to prepare data in order to answer business questions
+**Other Models with High Fatality Rates:**
 
-> This includes projects that _occasionally_ use base Python when `pandas` methods would be more appropriate (such as using `enumerate()` on a DataFrame), or occasionally performs operations that do not appear to have any relevance to the business questions
+* 767-366-ER has a fatality rate of 217.0, with 217 fatal injuries. It is also a model associated with a relatively high number of fatal accidents.
 
-#### Approaching Objective
-Uses `pandas` to prepare data, but makes significant errors
+* A320 - 216 has 162 fatal injuries and a fatality rate of 162.0, showing that accidents involving this model tend to result in fatalities, but the fatality rate is not as high as some other models like the 747-168 or TU-154.
 
-> Examples of significant errors include: the result presented does not actually answer the stated question, the code produces errors, the code _consistently_ uses base Python when `pandas` methods would be more appropriate, or the submitted notebook contains significant quantities of code that is unrelated to the presented analysis (such as copy/pasted code from the curriculum or StackOverflow)
+* A310 has 169 fatal injuries and a fatality rate of 169.0, indicating a relatively high number of fatalities compared to other aircraft.
 
-#### Does Not Meet Objective
-Unable to prepare data using `pandas`
+**Aircraft Models with Lower Fatality Rates:**
 
-> This includes projects that successfully answer the business questions, but do not use `pandas` (e.g. use only base Python, or use some other tool like R, Tableau, or Excel)
+* CitationJet 2 has 118 fatal injuries and a fatality rate of 118.0, which is still significant, but lower compared to other aircraft in the dataset.
 
-### Interactive Data Visualization
+* A310-300 has 124 fatal injuries, but it shows a relatively higher injury rate (183.0) due to the 59 serious injuries reported, making this model unique in having both a higher number of serious injuries and fatalities compared to other models. This suggests that accidents with A310-300 tend to result in more severe injuries, in addition to fatalities.
 
-Tableau is a powerful data analysis tool that allows data to be presented in a manner that allows it to be easily digestible with visualizations and charts to aid in the simplification of the data and its analysis. Tableau contains many customizable features and makes it easy to share in many ways. We recommend you use Tableau for your interactive data visualization now that you have experience with it.
+**Minor Injuries:**
 
-Here are the definitions of each rubric level for this objective.
+A310 is the only model with 10 minor injuries reported, while the rest of the models have no reported minor injuries. This indicates that accidents involving A310 may involve a mix of serious or fatal outcomes as well as minor injuries.
 
-#### Exceeds Objective
-Creates an easy to use dashboard to answer business questions
+**Conclusion:**
 
-#### Meets Objective
-Successfully creates a dashboard to answer business questions
+This dataset shows that many of the aircraft models, particularly 747-168, TU-154, 767-366-ER, and 777 - 206, are involved in accidents with high fatality rates, and they often result in fatalities with very few minor injuries. However, A310-300 stands out for having a higher injury rate due to the presence of serious injuries, indicating that its accidents may be more severe on average. CitationJet 2 and A320 - 216 have relatively lower fatality rates, suggesting fewer fatalities in accidents involving these models.
 
-#### Approaching Objective
-Creates a dashboard, but it is difficult to use
+# Visualizing the severity
 
-#### Does Not Meet Objective
-Unable to create a dashboard 
+Visualize the severity of accidents for the top 10 aircraft makes and models, ranked by fatality and injury rates.
+top_10_makes = severity_by_make_sorted.head(10)
+top_10_models = severity_by_model_sorted.head(10)
 
-## Getting Started
+# Creating visualizations 
+# Plotting Top 10 Aircraft Makes
+plt.figure(figsize=(14, 6))
+sns.barplot(x=top_10_makes.index, y=top_10_makes['fatality_rate'], color='red', label='Fatality Rate')
+sns.barplot(x=top_10_makes.index, y=top_10_makes['injury_rate'], color='blue',  label='Injury Rate')
 
-Please start by reviewing the contents of this project description. If you have any questions, please ask your instructor ASAP.
+plt.title("Severity of Accidents by Aircraft Make (Top 10)")
+plt.ylabel("Rate per Accident")
+plt.xlabel("Aircraft Make")
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.show();
 
-Next, you will need to complete the [***Project Proposal***](#project_proposal) which must be reviewed by your instructor before you can continue with the project.
+## **Interpretation**
 
-Then, you will need to create a GitHub repository. There are three options:
-Interactive Data Visualization
-1. Look at the [Phase 1 Project Templates and Examples repo](https://github.com/learn-co-curriculum/dsc-project-template) and follow the directions in the MVP branch.
-2. Fork the [Phase 1 Project Repository](https://github.com/learn-co-curriculum/dsc-phase-1-project-v3), clone it locally, and work in the `student.ipynb` file. Make sure to also add and commit a PDF of your presentation to your repository with a file name of `presentation.pdf`.
-3. Create a new repository from scratch by going to [github.com/new](https://github.com/new) and copying the data files from one of the above resources into your new repository. This approach will result in the most professional-looking portfolio repository, but can be more complicated to use. So if you are getting stuck with this option, try one of the above options instead.
+The bar plot reveals that the TUPOLEV aircraft make has experienced the highest number of accidents among the top 10, with a notably high injury rate but no recorded fatalities, indicating severe but non-fatal outcomes. In contrast, makes such as AIRVAN, M7AERO, and JETSTREAM show both lower accident counts and minimal injury rates, suggesting these aircraft types are involved in fewer and less severe incidents overall.
 
-## Summary
-This project will give you a valuable opportunity to develop your data science skills using real-world data. The end-of-phase projects are a critical part of the program because they give you a chance to bring together all the skills you've learned, apply them to realistic projects for a business stakeholder, practice communication skills, and get feedback to help you improve. You've got this!
+# Plotting Top 10 Aircraft Models
+plt.figure(figsize=(14, 6))
+sns.barplot(x=top_10_models.index, y=top_10_models['fatality_rate'], color='red', label='Fatality Rate')
+sns.barplot(x=top_10_models.index, y=top_10_models['injury_rate'], color='blue',  label='Injury Rate')
+
+plt.title("Severity of Accidents by Aircraft Model (Top 10)")
+plt.ylabel("Rate per Accident")
+plt.xlabel("Aircraft Model")
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.show();
+
+## **Interpretation**
+
+The bar plot indicates that aircraft models 747-168 and TU-154 have the highest number of accidents, each associated with high injury rates. In contrast, models like the 737-222 and CitationJet 2 show lower accident frequencies with relatively modest injury rates. Notably, the plot displays no recorded fatality rates across all models shown, suggesting that these incidents involved injuries but no reported fatalities.
+
+# Compare Accident Frequency with Severity
+
+### Step 1: Get Accident Frequency of Aircraft Make
+accident_counts = df['Make'].value_counts() 
+
+### Step 2 : Calculate Total Severity
+severity_data = df.groupby('Make')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
+
+### Step 3: Combine Frequency and Severity
+# Convert series to DataFrame
+accident_counts = accident_counts.rename('accident_count')
+
+# Join with severity data
+combined = severity_data.join(accident_counts)
+
+# Optional: Add severity rate columns
+combined['total_injuries'] = combined['Total.Fatal.Injuries'] + combined['Total.Serious.Injuries'] + combined['Total.Minor.Injuries']
+combined['fatality_rate'] = combined['Total.Fatal.Injuries'] / combined['accident_count']
+combined['injury_rate'] = combined['total_injuries'] / combined['accident_count']
+
+### Step 4: Visualize the Comparison
+plt.figure(figsize=(12, 8))
+sns.scatterplot(data=combined, x='accident_count', y='fatality_rate', hue='total_injuries', size='accident_count', sizes=(50, 500))
+
+plt.title("Accident Frequency vs. Fatality Rate by Aircraft Make")
+plt.xlabel("Number of Accidents")
+plt.ylabel("Fatality Rate")
+plt.legend()
+plt.tight_layout()
+plt.show();
+
+
+### *Interpretation*
+
+The scatter plot illustrates the relationship between the number of accidents and the fatality rate per accident across different aircraft makes.
+
+* Aircraft makes with a high accident count but low fatality rate likely represent models that are frequently used and may have better safety performance overall, despite being involved in more incidents.
+
+* Aircraft makes with low accident counts but high fatality rates are less commonly involved in accidents, but when accidents do occur, they tend to be more severe, suggesting a potentially higher safety risk per incident.
+
+* Aircraft makes with both high accident counts and high fatality rates may represent higher-risk types and could warrant closer evaluation or additional safety measures.
+
+
+# *Recommendations for Low-Risk Aircraft Models Suitable for Fleet Selection*
+
+**1.Prioritize Aircraft with Low Accident Counts and Low Injury Rates (e.g., AIRVAN, M7AERO, JETSTREAM, 737-222, CitationJet 2)**
+
+* **Findings:** Aircraft such as AIRVAN, M7AERO, JETSTREAM, 737-222, and CitationJet 2 are associated with low accident counts and minimal injury rates, suggesting these models are safer and more reliable overall.
+
+* **Recommendation:** Prioritize these aircraft models for regular operations, especially on high-traffic routes or missions where safety is a top priority. These models are proven to have a strong safety profile with fewer incidents and minimal injury outcomes.
+
+* **Action:** Consider expanding the use of these aircraft types in your fleet or use them for high-demand operations. These aircraft are likely to maintain consistent and safe operational performance.
+
+**2. Consider Aircraft with Strong Safety Performance Despite High Accident Frequency (e.g., 737-222)**
+
+* **Findings:** The 737-222 model, although involved in a relatively high number of accidents, exhibits low injury rates, suggesting that it is frequently used, well-maintained, and likely equipped with robust safety systems that help minimize harm during incidents.
+
+* **Recommendation:** While it's not entirely risk-free, aircraft with high utilization and low injury rates, such as the 737-222, can still be strong candidates for fleet inclusion. These models may have higher exposure due to frequent use, but their safety features effectively reduce the severity of accidents.
+
+* **Action:** Continue monitoring these models closely, with a focus on regular maintenance and strict adherence to safety protocols. These aircraft could be particularly suitable for high-volume, cost-effective routes where frequent operation is necessary.
+
+**3. Avoid Aircraft with High Injury Rates and Low Accident Counts (e.g., TUPOLEV, 747-168, TU-154)**
+
+* **Findings:** Aircraft such as TUPOLEV, 747-168, and TU-154 exhibit high injury rates despite having relatively low accident counts, indicating that while accidents are infrequent, the severity of injuries in these events is significantly higher.
+
+* **Recommendation:** Refrain from acquiring or using these aircraft types, unless substantial improvements are made to enhance their safety. These models pose a higher risk of severe injuries per incident, which could negatively affect both fleet safety and the company’s reputation.
+
+**4. Emphasize Safety in Fleet Selection by Analyzing Accident and Fatality Data**
+
+* **Findings:** The analysis of the bar and scatter plots reveals that while accidents occur across all models, there have been no recorded fatalities, indicating that fatalities are not a common result. However, injury severity remains an important consideration in assessing safety.
+
+* **Recommendation:** Incorporate a thorough analysis of accident severity (including injury and fatality rates) into the fleet selection process. Prioritize models with lower injury severity and stronger overall safety records to enhance fleet safety.
+
+* **Action:** Continuously review and update safety assessments as new data becomes available. Base fleet decisions on both accident frequency and the severity of injuries, as these factors provide a more accurate measure of safety performance.
+
+**5. Integrate a Data-Driven Approach for Fleet Optimization**
+
+* **Findings:** The scatter plot suggests that aircraft with high accident counts but low fatality rates tend to perform well overall, while aircraft with low accident counts but high fatality rates could pose a higher safety risk per incident.
+
+* **Recommendation:** Leverage data-driven decision-making to continuously monitor the safety performance of aircraft in the fleet. Invest in predictive analytics to anticipate potential safety risks and proactively address them, selecting aircraft that demonstrate both low accident and injury rates.
+
+* **Action:** Develop a safety monitoring system that tracks accident severity and makes data-driven recommendations on fleet composition. This system should continuously evaluate trends and suggest aircraft models with better safety performance for selection.
+
+
+
+# **Summary**
+
+By prioritizing low-risk aircraft models like AIRVAN, M7AERO, JETSTREAM, and 737-222, and exercising caution with aircraft that have higher injury rates, such as TUPOLEV and 747-168, aviation stakeholders can optimize fleet safety and mitigate operational risks. Employing data-driven safety assessments will be essential for continuously enhancing fleet safety performance and ensuring long-term operational success.
 
