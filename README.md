@@ -1,29 +1,44 @@
-# Phase 1 Project Description
-
-You've made it all the way through the first phase of this course - take a minute to celebrate your awesomeness!
-
-Now you will put your new skills to use with a large end-of-Phase project!
-
-In this project description, we will cover:
-
-* [***Project Overview:***](#project-overview) the project goal, audience, and dataset
-* [***Deliverables:***](#deliverables) the specific items you are required to produce for this project
-* [***Grading:***](#grading) how your project will be scored
-* [***Getting Started:***](#getting-started) guidance for how to begin your first project
-
-## Project Overview
+# Project Overview 
 
 For this project, you will use data cleaning, imputation, analysis, and visualization to generate insights for a business stakeholder.
 
-### Business Problem
+## 1. Business Problem
 
-Your company is expanding in to new industries to diversify its portfolio. Specifically, they are interested in purchasing and operating airplanes for commercial and private enterprises, but do not know anything about the potential risks of aircraft. You are charged with determining which aircraft are the lowest risk for the company to start this new business endeavor. You must then translate your findings into actionable insights that the head of the new aviation division can use to help decide which aircraft to purchase.
+This project is designed to support aviation entrepreneurs and startups by offering a data-driven analysis of historical aircraft accident data to identify aircraft types associated with lower safety risks. By uncovering patterns and trends in past incidents, the project provides valuable insights that can guide strategic fleet selection. These insights enable stakeholders to make informed decisions that prioritize operational safety, minimize potential liabilities, and support the successful launch and growth of aviation ventures.
 
-### The Data
+### Stakeholders
 
-In the `data` folder is a [dataset](https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses) from the National Transportation Safety Board that includes aviation accident data from 1962 to 2023 about civil aviation accidents and selected incidents in the United States and international waters.
+The primary stakeholder for this project is the head of aviation division, who is responsible for overseeing fleet decisions, operational safety, and long-term strategic planning. This project provides data-driven insights that support informed decision-making around aircraft selection, helping minimize operational risk and ensure compliance with safety standards. By identifying aircraft models with lower historical accident rates, the project aims to enhance fleet safety while reducing the financial and reputational risks associated with high-risk aircraft.
 
-It is up to you to decide what data to use, how to deal with missing values, how to aggregate the data, and how to visualize it in an interactive dashboard.
+### Conclusion: Implications
+This project highlights how historical aviation accident data can be leveraged to generate actionable insights that inform aviation business strategy. By identifying aircraft models associated with lower incident rates, the analysis supports more informed and safety-conscious fleet selection. These insights not only enhance passenger safety but also promote long-term financial sustainability by helping aviation startups avoid high-risk investments.
+
+
+## 2. Data Understanding
+
+The dataset used in this project comes from the Aviation Accident Database (Synopses) on Kaggle, which is compiled from official U.S. National Transportation Safety Board (NTSB) accident reports. It contains essential information including the date and location of each incident, aircraft make and model, type of operation (e.g., commercial or private), number of fatalities and injuries, and a brief narrative summarizing the circumstances of the event.
+
+This data is critical for uncovering safety-related patterns—such as which aircraft models are more commonly involved in accidents, which operational contexts carry higher risk, and the most frequent contributing factors. These insights directly support the project’s objective of assessing relative safety risks across various aircraft types.
+
+An initial data exploration phase will focus on evaluating data quality, detecting missing or inconsistent entries, and analyzing the distribution of key variables. Establishing a strong understanding of the dataset at this stage is essential to ensure that the analysis remains accurate, meaningful, and aligned with the broader goal of recommending low-risk aircraft models for strategic fleet selection.
+
+## Requirements
+
+#### 1. Key Fields
+* Aircraft make and model
+* Date and location of incidents
+* Types of operation 
+* Number of fatalities and injuries
+* Accident synopsis and summary
+
+### 2. Exploratory Data Analysis(EDA)
+* Identify patterns in accident frequency by aircraft model
+* Determine which types of operations (commercial vs private) have higher risks
+* Analyze accident severity by type
+
+### 3. Data Cleaning 
+* Handle missing and inconsistent values
+
 
 ### Key Points
 
