@@ -53,44 +53,54 @@ warnings.filterwarnings('ignore')
 Next step is to load the dataset in a pandas dataframe using read_csv method and display the first few rows.
 
 # Loading the dataset
+```python
 df= pd.read_csv('data/Aviation_Data.csv')
+```
 
 # Shows the first few rows 
+```python
 df.head()
+```
 
 The Aviation accident dataset contains historical records of aircraft incidents compiled from NTSB reports. This dataset will serve as the basis for identifying aircraft models associated with lower safety risk.
 
 ## Dataset Overview
 
 # Dataset shape and summary
+```python
 df.shape
-
+```
 The dataset has 90348 rows and 31 columns.
 
 # Dataset summary 
+```python
 df.info()
+```
 
 The .info() method provides a concise summary of the DataFrame. In this aviation dataset, there are 90,348 rows and 31 columns. Among these, 5 columns are of float data type, while the remaining 26 columns are of object data type, typically representing strings or mixed data.
 
 # Summary statistics for numerical column
-
+```python
 df.describe()
+```
 
 The summary statistics offer valuable insights into key variables such as the number of engines, fatal injuries, serious injuries, minor injuries, and the total number of uninjured individuals. On average, each incident involved approximately 0.65 fatal injuries, 0.36 minor injuries, and 0.28 serious injuries, while about 5.33 individuals remained uninjured per case. These averages indicate that most incidents did not result in any injuries, as the mean values for fatalities and injuries are all below one. This suggests that while some incidents were severe, the majority involved no injuries at all. However, the relatively high average of uninjured individuals points to a consistent presence of survivors or unaffected individuals in each incident.
 
 # finding missing values 
-
+```python
 df.isnull().sum()
+```
 
 The .isnull().sum() method helps detect missing data by returning the count of null (or missing) values in each column of the aviation dataset. Event Id,Event date and Accident number have no missing values. Location is missing 1511 entries ,Latitude and longitude have a high number of missing values. This indicates that geographical data is largely incomplete. Injury related fields like Total.Fatal.Injuries, Total.Serious.Injuries, and Total.Minor.Injuries have thousands of missing entries—this may reflect cases where injury details were not recorded or not applicable. Columns such as Schedule, Air.carrier, and FAR.Description are missing in over 70,000 records, which might significantly impact analysis involving those fields.
 
 # Check for unique values in key categorical columns
-
+```python
 df['Make'].value_counts().head(10)
 df['Make']
+```
 
 # Check distribution of accident data
-
+```python
 #Remove leading/trailing spaces from column names
 df.columns = df.columns.str.strip()
 #Convert the 'Event.Date' column to datetime format
@@ -100,6 +110,7 @@ df['Event.Date'] = pd.to_datetime(df['Event.Date'], errors='coerce')
 
 print("Date range of accident data:")
 print(f"From {df['Event.Date'].min().date()} to {df['Event.Date'].max().date()}")
+```
 
 str.strip() removes any hidden spaces in column names (common issue). pd.to_datetime() converts date strings into actual datetime objects.
 .min() and .max() find the earliest and latest dates.
@@ -107,11 +118,13 @@ str.strip() removes any hidden spaces in column names (common issue). pd.to_date
 
  # Data Cleaning
  Dropping columns with missing values like location which has 1511 missing values . The location column will not be used in this analysis.
-
+```python
  df.drop(columns=['Location'], inplace=True)
+```
 
-  Next we will impute the injury related fields i.e the Total.Fatal.Injuries, Total.Serious.Injuries, and Total.Minor.Injuries.
+Next we will impute the injury related fields i.e the Total.Fatal.Injuries, Total.Serious.Injuries, and Total.Minor.Injuries.
   # List of injury-related fields
+```python
 injury_cols = ['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']
 
 # Fill missing injury data with 0 (indicating no injuries or not applicable)
@@ -119,13 +132,15 @@ df[injury_cols] = df[injury_cols].fillna(0)
 
 # Optional: Convert injury columns to integers (if they were float initially)
 df[injury_cols] = df[injury_cols].astype(int)
+```
 
 Top 10 Aircrafts Makes by Accident Frequency
 # Clean and standardize the Make column to remove extra white spaces or different capitalization
+```python
 df['Make']= df['Make'].str.upper().str.strip()
-
+```
 # Top 10 Aircraft makes by frequency
-
+```python
 top_makes = df['Make'].value_counts().head(10)
 
 #Plotting
@@ -136,7 +151,7 @@ plt.xlabel("Number of Incidences")
 plt.ylabel("Aircraft Make")
 plt.tight_layout()
 plt.show();
-
+```
 This chart displays the top 10 Aircraft manufactures most frequently involved in reported incidents. Cessna has the most leading incidences of over 20000 incidences while Piper, Bell, Boeing, Grumman and  Mooney manufactures have less than 5000 reported incidences. The Make column was standardized by converting all values to uppercase and removing leading/trailing whitespace. This ensures that different variations of the same manufacturer (like "Cessna", "CESSNA", or "CESSNA ") are treated consistently, avoiding duplicate entries in the analysis. 
 
 Cessna consistently emerges as the aircraft make with the highest reported incidents.
@@ -144,7 +159,7 @@ Cessna consistently emerges as the aircraft make with the highest reported incid
 ## Most Frequently Involved Aircraft Models
 
 #Top 10 Models involved in Accidents 
-
+```python
 top_models = df['Model'].value_counts().head(10)
 
 #Plot graph for the top_models
@@ -155,6 +170,7 @@ plt.xlabel("Number of incidents")
 plt.ylabel("Aircraft Models")
 plt.tight_layout()
 plt.show();
+```
 
 This chart highlights the aircraft models with the highest number of recorded incidents. The Aircraft Model 152 leads with over 2,000 incidents, while the Model 150M has a significantly lower incident count of just over 500.
 
@@ -180,9 +196,11 @@ Severity metrics could include:
 You can group by both aircraft make and model to calculate these severity metrics.
 #Severity metrics by Aircraft Make
 # Normalize the 'Make' column to ensure consistency (e.g., convert all names to uppercase)
+`python
 df['Make'] = df['Make'].str.upper()
-
+`
 # Group by 'make' and sum up the injury-related fields
+```python
 severity_by_make = df.groupby('Make')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
 
 # Calculate fatality rate and injury rate
@@ -195,7 +213,7 @@ severity_by_make_sorted = severity_by_make.sort_values(by='fatality_rate', ascen
 
 # Display the top 10 aircraft makes by fatality rate
 print(severity_by_make_sorted.head(10))
-
+```
 ### Key insights and Observations
 
 **Aircraft Makes with the Highest Fatality Rate:**
@@ -217,19 +235,23 @@ This dataset indicates that some aircraft makes, especially TUPOLEV, tend to be 
 # Severity Metrics by Aircraft Model 
 
 # Group by 'model' and sum up the injury-related fields
+```python
 severity_by_model = df.groupby('Model')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
-
+```
 # Calculate fatality rate and injury rate by model
+```python
 accidents_by_model = df['Model'].value_counts()
 severity_by_model['fatality_rate'] = severity_by_model['Total.Fatal.Injuries'] / accidents_by_model
 severity_by_model['injury_rate'] = (severity_by_model['Total.Fatal.Injuries'] + severity_by_model['Total.Serious.Injuries'] + severity_by_model['Total.Minor.Injuries']) / accidents_by_model
-
+```
 # Sort by fatality rate or injury rate
+```python
 severity_by_model_sorted = severity_by_model.sort_values(by='fatality_rate', ascending=False)
-
+```
 # Display the top 10 aircraft models by fatality rate
+```python
 print(severity_by_model_sorted.head(10))
-
+```
 ### Key Insights and Observations 
 
 **Aircraft Models with the Highest Fatality Rates:**
@@ -263,15 +285,15 @@ This dataset shows that many of the aircraft models, particularly 747-168, TU-15
 # Visualizing the severity
 
 Visualize the severity of accidents for the top 10 aircraft makes and models, ranked by fatality and injury rates.
+```python
 top_10_makes = severity_by_make_sorted.head(10)
 top_10_models = severity_by_model_sorted.head(10)
 
 # Creating visualizations 
 # Plotting Top 10 Aircraft Makes
-plt.figure(figsize=(14, 6))
-sns.barplot(x=top_10_makes.index, y=top_10_makes['fatality_rate'], color='red', label='Fatality Rate')
-sns.barplot(x=top_10_makes.index, y=top_10_makes['injury_rate'], color='blue',  label='Injury Rate')
 
+top_10_makes[['fatality_rate', 'injury_rate']].plot(kind='bar',figsize=(14, 6),color=['red', 'blue'])
+# Adding title and labels
 plt.title("Severity of Accidents by Aircraft Make (Top 10)")
 plt.ylabel("Rate per Accident")
 plt.xlabel("Aircraft Make")
@@ -279,15 +301,16 @@ plt.xticks(rotation=45)
 plt.legend()
 plt.tight_layout()
 plt.show();
-
+```
 ## **Interpretation**
 
-The bar plot reveals that the TUPOLEV aircraft make has experienced the highest number of accidents among the top 10, with a notably high injury rate but no recorded fatalities, indicating severe but non-fatal outcomes. In contrast, makes such as AIRVAN, M7AERO, and JETSTREAM show both lower accident counts and minimal injury rates, suggesting these aircraft types are involved in fewer and less severe incidents overall.
+TThe bar plot indicates that the TUPOLEV aircraft make has the highest number of accidents among the top 10, with a significantly elevated fatality and injury rate. In contrast, aircraft makes like M7AERO and JETSTREAM exhibit lower accident frequencies, coupled with minimal injury and fatality rates, suggesting that these models tend to be involved in fewer and less severe incidents overall.
 
 # Plotting Top 10 Aircraft Models
-plt.figure(figsize=(14, 6))
-sns.barplot(x=top_10_models.index, y=top_10_models['fatality_rate'], color='red', label='Fatality Rate')
-sns.barplot(x=top_10_models.index, y=top_10_models['injury_rate'], color='blue',  label='Injury Rate')
+```python
+# Plotting Top 10 Aircraft Models
+
+top_10_models[['fatality_rate', 'injury_rate']].plot(kind='bar',figsize=(14, 6),color=['red', 'blue'])
 
 plt.title("Severity of Accidents by Aircraft Model (Top 10)")
 plt.ylabel("Rate per Accident")
@@ -296,16 +319,16 @@ plt.xticks(rotation=45)
 plt.legend()
 plt.tight_layout()
 plt.show();
-
+```
 ## **Interpretation**
 
-The bar plot indicates that aircraft models 747-168 and TU-154 have the highest number of accidents, each associated with high injury rates. In contrast, models like the 737-222 and CitationJet 2 show lower accident frequencies with relatively modest injury rates. Notably, the plot displays no recorded fatality rates across all models shown, suggesting that these incidents involved injuries but no reported fatalities.
+The bar plot indicates that aircraft models 747-168 and TU-154 have the highest number of accidents, each associated with high injury rates and fatality rates. In contrast, models like the 737-222 and CitationJet 2 show lower accident frequencies with relatively modest injury rates and fatality rates. 
 
 # Compare Accident Frequency with Severity
 
 ### Step 1: Get Accident Frequency of Aircraft Make
+```python
 accident_counts = df['Make'].value_counts() 
-
 ### Step 2 : Calculate Total Severity
 severity_data = df.groupby('Make')[['Total.Fatal.Injuries', 'Total.Serious.Injuries', 'Total.Minor.Injuries']].sum()
 
@@ -316,7 +339,7 @@ accident_counts = accident_counts.rename('accident_count')
 # Join with severity data
 combined = severity_data.join(accident_counts)
 
-# Optional: Add severity rate columns
+# Add severity rate columns
 combined['total_injuries'] = combined['Total.Fatal.Injuries'] + combined['Total.Serious.Injuries'] + combined['Total.Minor.Injuries']
 combined['fatality_rate'] = combined['Total.Fatal.Injuries'] / combined['accident_count']
 combined['injury_rate'] = combined['total_injuries'] / combined['accident_count']
@@ -332,7 +355,8 @@ plt.legend()
 plt.tight_layout()
 plt.show();
 
-
+```
+![png]("C:\Users\USER\Documents\Moringa\Phase1\DataAnalysis\output1.png")
 ### *Interpretation*
 
 The scatter plot illustrates the relationship between the number of accidents and the fatality rate per accident across different aircraft makes.
@@ -346,9 +370,9 @@ The scatter plot illustrates the relationship between the number of accidents an
 
 # *Recommendations for Low-Risk Aircraft Models Suitable for Fleet Selection*
 
-**1.Prioritize Aircraft with Low Accident Counts and Low Injury Rates (e.g., AIRVAN, M7AERO, JETSTREAM, 737-222, CitationJet 2)**
+**1.Prioritize Aircraft with Low Accident Counts and Low Injury Rates**
 
-* **Findings:** Aircraft such as AIRVAN, M7AERO, JETSTREAM, 737-222, and CitationJet 2 are associated with low accident counts and minimal injury rates, suggesting these models are safer and more reliable overall.
+* **Findings:** Aircraft such as M7AERO, JETSTREAM, and CitationJet 2 exhibit low accident frequencies and minimal injury and fatality rates. These models suggest that they are safer and more reliable, with fewer incidents overall and lower injury severity.
 
 * **Recommendation:** Prioritize these aircraft models for regular operations, especially on high-traffic routes or missions where safety is a top priority. These models are proven to have a strong safety profile with fewer incidents and minimal injury outcomes.
 
@@ -356,37 +380,37 @@ The scatter plot illustrates the relationship between the number of accidents an
 
 **2. Consider Aircraft with Strong Safety Performance Despite High Accident Frequency (e.g., 737-222)**
 
-* **Findings:** The 737-222 model, although involved in a relatively high number of accidents, exhibits low injury rates, suggesting that it is frequently used, well-maintained, and likely equipped with robust safety systems that help minimize harm during incidents.
+* **Findings:** The 737-222 aircraft model, despite being involved in a relatively high number of accidents, shows a lower injury and fatality rate, suggesting that it is frequently used, well-maintained, and likely has robust safety features minimizing harm during incidents.
 
-* **Recommendation:** While it's not entirely risk-free, aircraft with high utilization and low injury rates, such as the 737-222, can still be strong candidates for fleet inclusion. These models may have higher exposure due to frequent use, but their safety features effectively reduce the severity of accidents.
+* **Recommendation:** While it's not entirely risk-free, it has a higher accident frequency but lower injury rates—can still be considered for fleet inclusion. These models may be exposed to more incidents due to frequent use, but their strong safety systems reduce the severity of the outcomes.
 
 * **Action:** Continue monitoring these models closely, with a focus on regular maintenance and strict adherence to safety protocols. These aircraft could be particularly suitable for high-volume, cost-effective routes where frequent operation is necessary.
 
-**3. Avoid Aircraft with High Injury Rates and Low Accident Counts (e.g., TUPOLEV, 747-168, TU-154)**
+**3. Avoid Aircraft with High Injury Rates and Low Accident Counts**
 
-* **Findings:** Aircraft such as TUPOLEV, 747-168, and TU-154 exhibit high injury rates despite having relatively low accident counts, indicating that while accidents are infrequent, the severity of injuries in these events is significantly higher.
+* **Findings:** Aircraft such as TUPOLEV, 747-168, and TU-154 exhibit high injury rates despite having relatively low accident counts .This indicates that although these aircraft have fewer accidents, the severity of the injuries in those incidents is much higher, which is a safety concern. 
 
 * **Recommendation:** Refrain from acquiring or using these aircraft types, unless substantial improvements are made to enhance their safety. These models pose a higher risk of severe injuries per incident, which could negatively affect both fleet safety and the company’s reputation.
 
 **4. Emphasize Safety in Fleet Selection by Analyzing Accident and Fatality Data**
 
-* **Findings:** The analysis of the bar and scatter plots reveals that while accidents occur across all models, there have been no recorded fatalities, indicating that fatalities are not a common result. However, injury severity remains an important consideration in assessing safety.
+* **Findings:** The bar plots suggest that although accidents occur across various aircraft models, fatalities are relatively rare, which indicates that fatal accidents are not a common result. However, injury severity remains an important factor in assessing safety performance.
 
-* **Recommendation:** Incorporate a thorough analysis of accident severity (including injury and fatality rates) into the fleet selection process. Prioritize models with lower injury severity and stronger overall safety records to enhance fleet safety.
+* **Recommendation:** Incorporate a detailed analysis of injury severity alongside accident frequency in the fleet selection process. Models with lower injury and fatality rates should be prioritized, as they contribute to overall fleet safety.
 
-* **Action:** Continuously review and update safety assessments as new data becomes available. Base fleet decisions on both accident frequency and the severity of injuries, as these factors provide a more accurate measure of safety performance.
+* **Action:** Regularly review accident data, particularly focusing on injury and fatality severity. Use this information to guide decisions, favoring models with low injury rates and strong safety records to ensure the overall safety of the fleet.
 
 **5. Integrate a Data-Driven Approach for Fleet Optimization**
 
-* **Findings:** The scatter plot suggests that aircraft with high accident counts but low fatality rates tend to perform well overall, while aircraft with low accident counts but high fatality rates could pose a higher safety risk per incident.
+* **Findings:** Data analysis reveals that aircraft with high accident counts but low fatality rates tend to perform well overall, while those with low accident counts but high injury rates (such as TUPOLEV and 747-168) pose a greater risk per incident.
 
-* **Recommendation:** Leverage data-driven decision-making to continuously monitor the safety performance of aircraft in the fleet. Invest in predictive analytics to anticipate potential safety risks and proactively address them, selecting aircraft that demonstrate both low accident and injury rates.
+* **Recommendation:** Leverage data-driven decision-making to optimize fleet safety. Continuously monitor the performance of aircraft using predictive analytics to identify potential safety risks early and proactively address them. Focus on aircraft with both low accident and injury rates for inclusion in your fleet.
 
-* **Action:** Develop a safety monitoring system that tracks accident severity and makes data-driven recommendations on fleet composition. This system should continuously evaluate trends and suggest aircraft models with better safety performance for selection.
+* **Action:** Develop a safety monitoring system that tracks accident frequency, severity, injury rates, and other critical metrics. Use this system to make data-informed decisions about fleet composition, ensuring that aircraft with proven safety records are prioritized for fleet inclusion.
 
 
 
 # **Summary**
 
-By prioritizing low-risk aircraft models like AIRVAN, M7AERO, JETSTREAM, and 737-222, and exercising caution with aircraft that have higher injury rates, such as TUPOLEV and 747-168, aviation stakeholders can optimize fleet safety and mitigate operational risks. Employing data-driven safety assessments will be essential for continuously enhancing fleet safety performance and ensuring long-term operational success.
+Prioritize low-risk aircraft models like AIRVAN, M7AERO, JETSTREAM, and 737-222 while exercising caution with models that have higher injury rates, such as TUPOLEV and 747-168. By doing so, aviation stakeholders can optimize fleet safety and mitigate operational risks. Additionally, implementing data-driven safety assessments will be crucial for continuously improving fleet safety performance and ensuring long-term operational success.
 
