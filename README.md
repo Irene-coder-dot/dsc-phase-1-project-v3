@@ -16,7 +16,7 @@ This project highlights how historical aviation accident data can be leveraged t
 
 ## 2. Data Understanding
 
-The dataset used in this project comes from the Aviation Accident Database (Synopses) on Kaggle, which is compiled from official U.S. National Transportation Safety Board (NTSB) accident reports. It contains essential information including the date and location of each incident, aircraft make and model, type of operation (e.g., commercial or private), number of fatalities and injuries, and a brief narrative summarizing the circumstances of the event.
+The dataset used in this project comes from  https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses. It is compiled from official U.S. National Transportation Safety Board (NTSB) accident reports. It contains essential information including the date and location of each incident, aircraft make and model, type of operation (e.g., commercial or private), number of fatalities and injuries, and a brief narrative summarizing the circumstances of the event.
 
 This data is critical for uncovering safety-related patterns—such as which aircraft models are more commonly involved in accidents, which operational contexts carry higher risk, and the most frequent contributing factors. These insights directly support the project’s objective of assessing relative safety risks across various aircraft types.
 
