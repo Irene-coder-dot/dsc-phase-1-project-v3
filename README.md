@@ -302,6 +302,8 @@ plt.legend()
 plt.tight_layout()
 plt.show();
 ```
+![image](https://github.com/user-attachments/assets/712e65b1-b807-49ea-8cbf-e955c6bca973)
+
 ## **Interpretation**
 
 TThe bar plot indicates that the TUPOLEV aircraft make has the highest number of accidents among the top 10, with a significantly elevated fatality and injury rate. In contrast, aircraft makes like M7AERO and JETSTREAM exhibit lower accident frequencies, coupled with minimal injury and fatality rates, suggesting that these models tend to be involved in fewer and less severe incidents overall.
@@ -320,6 +322,8 @@ plt.legend()
 plt.tight_layout()
 plt.show();
 ```
+![image](https://github.com/user-attachments/assets/cd219da6-e1de-4c81-9260-20d2c479b5b0)
+
 ## **Interpretation**
 
 The bar plot indicates that aircraft models 747-168 and TU-154 have the highest number of accidents, each associated with high injury rates and fatality rates. In contrast, models like the 737-222 and CitationJet 2 show lower accident frequencies with relatively modest injury rates and fatality rates. 
@@ -356,7 +360,8 @@ plt.tight_layout()
 plt.show();
 
 ```
-![png]("C:\Users\USER\Documents\Moringa\Phase1\DataAnalysis\output1.png")
+![image](https://github.com/user-attachments/assets/a62a6f79-a4e1-4630-926c-8f78cbe06e31)
+
 ### *Interpretation*
 
 The scatter plot illustrates the relationship between the number of accidents and the fatality rate per accident across different aircraft makes.
