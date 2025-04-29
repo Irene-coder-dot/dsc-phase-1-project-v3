@@ -16,7 +16,7 @@ This project highlights how historical aviation accident data can be leveraged t
 
 ## 2. Data Understanding
 
-The dataset used in this project comes from the Aviation Accident Database (Synopses) on Kaggle, which is compiled from official U.S. National Transportation Safety Board (NTSB) accident reports. It contains essential information including the date and location of each incident, aircraft make and model, type of operation (e.g., commercial or private), number of fatalities and injuries, and a brief narrative summarizing the circumstances of the event.
+The dataset used in this project comes from  https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses. It is compiled from official U.S. National Transportation Safety Board (NTSB) accident reports. It contains essential information including the date and location of each incident, aircraft make and model, type of operation (e.g., commercial or private), number of fatalities and injuries, and a brief narrative summarizing the circumstances of the event.
 
 This data is critical for uncovering safety-related patterns—such as which aircraft models are more commonly involved in accidents, which operational contexts carry higher risk, and the most frequent contributing factors. These insights directly support the project’s objective of assessing relative safety risks across various aircraft types.
 
@@ -302,6 +302,8 @@ plt.legend()
 plt.tight_layout()
 plt.show();
 ```
+![image](https://github.com/user-attachments/assets/712e65b1-b807-49ea-8cbf-e955c6bca973)
+
 ## **Interpretation**
 
 TThe bar plot indicates that the TUPOLEV aircraft make has the highest number of accidents among the top 10, with a significantly elevated fatality and injury rate. In contrast, aircraft makes like M7AERO and JETSTREAM exhibit lower accident frequencies, coupled with minimal injury and fatality rates, suggesting that these models tend to be involved in fewer and less severe incidents overall.
@@ -320,6 +322,8 @@ plt.legend()
 plt.tight_layout()
 plt.show();
 ```
+![image](https://github.com/user-attachments/assets/cd219da6-e1de-4c81-9260-20d2c479b5b0)
+
 ## **Interpretation**
 
 The bar plot indicates that aircraft models 747-168 and TU-154 have the highest number of accidents, each associated with high injury rates and fatality rates. In contrast, models like the 737-222 and CitationJet 2 show lower accident frequencies with relatively modest injury rates and fatality rates. 
@@ -345,18 +349,50 @@ combined['fatality_rate'] = combined['Total.Fatal.Injuries'] / combined['acciden
 combined['injury_rate'] = combined['total_injuries'] / combined['accident_count']
 
 ### Step 4: Visualize the Comparison
-plt.figure(figsize=(12, 8))
-sns.scatterplot(data=combined, x='accident_count', y='fatality_rate', hue='total_injuries', size='accident_count', sizes=(50, 500))
+import matplotlib.ticker as ticker
 
-plt.title("Accident Frequency vs. Fatality Rate by Aircraft Make")
-plt.xlabel("Number of Accidents")
-plt.ylabel("Fatality Rate")
-plt.legend()
+# Set style
+sns.set(style="whitegrid")
+
+# Create plot
+plt.figure(figsize=(12, 8))
+scatter = sns.scatterplot(
+    data=combined,
+    x='accident_count',
+    y='fatality_rate',
+    hue='total_injuries',
+    size='accident_count',
+    sizes=(50, 500),
+    palette='coolwarm',
+    alpha=0.7,
+    edgecolor='gray'
+)
+
+# Add title and labels
+plt.title("Accident Frequency vs. Fatality Rate by Aircraft Make", fontsize=18, weight='bold', pad=20)
+plt.xlabel("Number of Accidents", fontsize=14)
+plt.ylabel("Fatality Rate", fontsize=14)
+
+# Format y-axis as percentage
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1.0))
+
+# Add gridlines
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+# Adjust legend
+plt.legend(loc='upper right', title="Total Injuries")
+
+# Clean layout
 plt.tight_layout()
-plt.show();
+
+# Show plot
+plt.show()
+
 
 ```
-![png]("C:\Users\USER\Documents\Moringa\Phase1\DataAnalysis\output1.png")
+![image](https://github.com/user-attachments/assets/a62a6f79-a4e1-4630-926c-8f78cbe06e31) 
+
 ### *Interpretation*
 
 The scatter plot illustrates the relationship between the number of accidents and the fatality rate per accident across different aircraft makes.
@@ -416,5 +452,6 @@ Prioritize low-risk aircraft models like AIRVAN, M7AERO, JETSTREAM, and 737-222 
 
 # **Interactive Dashboard**
 
-It is a dynamic , visual interface that allows users to explore and interact with data in real time. Unlike static charts or reports, interactive dashboards let users manipulate what they see through features like filters, drop-downs, sliders, and clickable elements.
+It is a dynamic, visual interface that allows users to explore and interact with data in real time. Unlike static charts or reports, interactive dashboards let users manipulate what they see through features like filters, drop-downs, sliders, and clickable elements.
 https://public.tableau.com/views/Phase1ProjectAviationData/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
+
