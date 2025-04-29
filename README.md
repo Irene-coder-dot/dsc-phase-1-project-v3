@@ -414,3 +414,7 @@ The scatter plot illustrates the relationship between the number of accidents an
 
 Prioritize low-risk aircraft models like AIRVAN, M7AERO, JETSTREAM, and 737-222 while exercising caution with models that have higher injury rates, such as TUPOLEV and 747-168. By doing so, aviation stakeholders can optimize fleet safety and mitigate operational risks. Additionally, implementing data-driven safety assessments will be crucial for continuously improving fleet safety performance and ensuring long-term operational success.
 
+# **Interactive Dashboard**
+
+It is a dynamic , visual interface that allows users to explore and interact with data in real time. Unlike static charts or reports, interactive dashboards let users manipulate what they see through features like filters, drop-downs, sliders, and clickable elements.
+https://public.tableau.com/views/Phase1ProjectAviationData/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
