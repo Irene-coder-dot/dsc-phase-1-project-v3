@@ -391,7 +391,8 @@ plt.show()
 
 
 ```
-![image](https://github.com/user-attachments/assets/a62a6f79-a4e1-4630-926c-8f78cbe06e31) 
+![image](https://github.com/user-attachments/assets/68f875af-d977-4494-8e5d-67eff88bee9d)
+
 
 ### *Interpretation*
 
